@@ -2,29 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found – Pixelish Launcher</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <script>
-  // Old desktop download links (/downloads, /downloads/...) now live on GitHub Releases.
-  // Runs in <head>, before anything renders.
+  // Pixelish Launcher moved to https://pixelish-launcher.github.io/ - keep path, query and hash.
   (function () {
-    var REL = 'https://github.com/XxNoelW/dungeon-adventure/releases/tag/v1.2.0';
-    if (/^\/downloads(\/|$)/i.test(location.pathname)) {
-      document.write('<meta http-equiv="refresh" content="0; url=' + REL + '"><style>body{visibility:hidden}</style>');
-      location.replace(REL);
-    }
+    var p = location.pathname, t;
+    if (/^\/downloads(\/|$)/i.test(p)) t = 'https://github.com/Pixelish-launcher/dungeon-adventure/releases/tag/v1.2.0';
+    else t = 'https://pixelish-launcher.github.io' + p + location.search + location.hash;
+    location.replace(t);
   })();
 </script>
-<style>
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b0a12;color:#f3ead7;font-family:ui-monospace,Menlo,monospace;text-align:center}
-  a{color:#ffd84a}
-</style>
+<meta http-equiv="refresh" content="0; url=https://pixelish-launcher.github.io/">
+<link rel="canonical" href="https://pixelish-launcher.github.io/">
+<meta name="robots" content="noindex">
+<title>Pixelish Launcher has moved</title>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b0a12;color:#f3ead7;font-family:ui-monospace,Menlo,monospace;text-align:center}a{color:#ffd84a}</style>
 </head>
 <body>
-<main>
-  <h1>Page not found</h1>
-  <p>This page doesn’t exist. <a href="/">Go to the homepage</a> or <a href="/play/">play Dungeon Adventure</a>.</p>
-</main>
+<p>Pixelish Launcher has moved to <a href="https://pixelish-launcher.github.io/">https://pixelish-launcher.github.io/</a></p>
 </body>
 </html>
