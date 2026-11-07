@@ -36,6 +36,12 @@
         <button type="button" data-set-lang="hu" aria-pressed="true">HU</button>
         <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
       </div>
+      <div class="account">
+        <button type="button" class="btn btn-ghost btn-sm" id="authOpen" data-i18n="auth.open">Belépés</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="registerOpen" data-i18n="auth.register">Regisztráció</button>
+        <span class="account-email" id="accountEmail" hidden></span>
+        <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn" hidden data-i18n="auth.logout">Kijelentkezés</button>
+      </div>
       <button type="button" id="permBtn" class="btn btn-ghost btn-sm">Emlékeztető</button>
     </div>
     <button type="button" id="addBtn" class="btn btn-primary"><span data-add-label>Hozzáadás</span></button>
@@ -62,7 +68,7 @@
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p data-i18n="footer.blurb">A SubStop egy előfizetés-figyelő. A lista a te böngésződben marad.</p>
+    <p data-i18n="footer.blurb">A SubStop egy előfizetés-figyelő. A lista a böngésződben marad, a fiókkal pedig be tudsz lépni.</p>
     <p class="footer-links"><a href="index.html#pricing" data-i18n="nav.pricing">Árak</a> · <a href="index.html#faq" data-i18n="nav.faq">GYIK</a></p>
   </div>
 </footer>
@@ -156,9 +162,32 @@
 <noscript>
   <p class="noscript wrap" data-i18n="noscript.app">A SubStop appnak JavaScript kell. Engedélyezd, majd töltsd újra az oldalt.</p>
 </noscript>
+<dialog id="authDialog" aria-labelledby="authTitle">
+  <form id="authForm" class="dialog-body" novalidate autocomplete="on">
+    <div class="dialog-head">
+      <h2 id="authTitle">Belépés</h2>
+      <button type="button" class="icon-btn" id="authClose" data-i18n-aria="form.close" aria-label="Bezárás">×</button>
+    </div>
+    <p id="authError" class="form-error" role="alert" hidden></p>
+    <label class="field" for="authEmail">
+      <span data-i18n="auth.email">E-mail</span>
+      <input id="authEmail" name="email" type="email" maxlength="120" autocomplete="username" required>
+    </label>
+    <label class="field" for="authPassword">
+      <span data-i18n="auth.password">Jelszó</span>
+      <input id="authPassword" name="password" type="password" maxlength="200" autocomplete="current-password" required>
+    </label>
+    <p class="hint" data-i18n="auth.passwordHint">Legalább 8 karakter.</p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-ghost" id="authSwitch">Nincs még fiókod? Regisztráció</button>
+      <button type="submit" class="btn btn-primary" id="authSubmit">Belépés</button>
+    </div>
+  </form>
+</dialog>
 <p id="toast" class="toast" role="status" hidden></p>
 <script src="js/logic.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
