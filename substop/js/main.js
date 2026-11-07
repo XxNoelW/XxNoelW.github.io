@@ -2,10 +2,13 @@
   var KEY = "substop.v1";
   var Logic = window.SubStopLogic;
   var I18n = window.SubStopI18n;
+  var Auth = window.SubStopAuth;
   var lang = "hu";
   var editingId = null;
   var deleteId = null;
   var toastTimer = 0;
+  var authMode = "login";
+  var authPending = false;
 
   function t(key, vars) {
     return I18n.t(lang, key, vars);
@@ -519,6 +522,8 @@
       button.setAttribute("aria-pressed", button.dataset.setLang === lang ? "true" : "false");
     });
     refreshInterest();
+    renderAccount();
+    renderAuthDialog();
     if (document.body.dataset.page === "app") {
       updatePermButton();
       updateDateLabel();
@@ -596,13 +601,191 @@
     });
   }
 
+  function authMessage(code) {
+    if (code === "invalid_email") return t("auth.invalidEmail");
+    if (code === "password_too_short") return t("auth.passwordShort");
+    if (code === "password_too_long") return t("auth.passwordLong");
+    if (code === "email_taken") return t("auth.emailTaken");
+    if (code === "invalid_credentials") return t("auth.invalidCredentials");
+    if (code === "rate_limited") return t("auth.rateLimited");
+    if (code === "unreachable") return t("auth.unreachable");
+    return t("auth.failed");
+  }
+
+  function showAuthError(code) {
+    var node = document.getElementById("authError");
+    if (!node) return;
+    node.hidden = false;
+    node.dataset.code = code;
+    node.textContent = authMessage(code);
+    var passwordField = code === "password_too_short" || code === "password_too_long" || code === "invalid_credentials";
+    var field = document.getElementById(passwordField ? "authPassword" : "authEmail");
+    if (field) field.focus();
+  }
+
+  function renderAuthDialog() {
+    var title = document.getElementById("authTitle");
+    if (!title) return;
+    var register = authMode === "register";
+    title.textContent = t(register ? "auth.registerTitle" : "auth.loginTitle");
+    var submit = document.getElementById("authSubmit");
+    submit.textContent = t(authPending ? "auth.working" : register ? "auth.submitRegister" : "auth.submitLogin");
+    submit.disabled = authPending;
+    var switcher = document.getElementById("authSwitch");
+    switcher.disabled = authPending;
+    switcher.textContent = t(register ? "auth.switchToLogin" : "auth.switchToRegister");
+    document.getElementById("authPassword").setAttribute("autocomplete", register ? "new-password" : "current-password");
+    var err = document.getElementById("authError");
+    if (err && !err.hidden && err.dataset.code) err.textContent = authMessage(err.dataset.code);
+  }
+
+  function renderAccount() {
+    if (!Auth) return;
+    var session = Auth.load();
+    var open = document.getElementById("authOpen");
+    var register = document.getElementById("registerOpen");
+    var email = document.getElementById("accountEmail");
+    var logout = document.getElementById("logoutBtn");
+    if (!open || !email || !logout) return;
+    var signedIn = !!(session && session.token && session.email);
+    open.hidden = signedIn;
+    if (register) register.hidden = signedIn;
+    email.hidden = !signedIn;
+    logout.hidden = !signedIn;
+    if (signedIn) {
+      email.textContent = session.email;
+      email.title = session.email;
+    } else {
+      email.textContent = "";
+      email.removeAttribute("title");
+    }
+  }
+
+  function refreshAccount() {
+    if (!Auth) return;
+    var session = Auth.load();
+    renderAccount();
+    if (!session) return;
+    var token = session.token;
+    Auth.me(token).then(function (me) {
+      var current = Auth.load();
+      if (!current || current.token !== token || !me || !me.email) return;
+      Auth.save({ token: token, email: me.email });
+      renderAccount();
+    }).catch(function (err) {
+      var current = Auth.load();
+      if (!current || current.token !== token) return;
+      if (err && err.unreachable) showToast(t("auth.unreachable"));
+      else Auth.clear();
+      renderAccount();
+    });
+  }
+
+  function openAuth(mode) {
+    authMode = mode === "register" ? "register" : "login";
+    var err = document.getElementById("authError");
+    err.hidden = true;
+    err.dataset.code = "";
+    renderAuthDialog();
+    var dialog = document.getElementById("authDialog");
+    if (!dialog.open) dialog.showModal();
+    document.getElementById("authEmail").focus();
+  }
+
+  function onAuthSubmit(event) {
+    event.preventDefault();
+    if (authPending || !Auth) return;
+    var email = document.getElementById("authEmail").value.trim();
+    var password = document.getElementById("authPassword").value;
+    if (!Logic.isEmail(email)) {
+      showAuthError("invalid_email");
+      return;
+    }
+    if (password.length < 8) {
+      showAuthError("password_too_short");
+      return;
+    }
+    if (password.length > 200) {
+      showAuthError("password_too_long");
+      return;
+    }
+    authPending = true;
+    renderAuthDialog();
+    var action = authMode === "register" ? Auth.register : Auth.login;
+    action(email, password).then(function (result) {
+      Auth.save({ token: result.token, email: result.email });
+      document.getElementById("authPassword").value = "";
+      document.getElementById("authDialog").close();
+      renderAccount();
+      showToast(t(authMode === "register" ? "auth.registered" : "auth.loggedIn"));
+    }).catch(function (err) {
+      showAuthError(err && err.code ? err.code : "failed");
+    }).then(function () {
+      authPending = false;
+      renderAuthDialog();
+    });
+  }
+
+  function onLogout() {
+    if (!Auth) return;
+    var session = Auth.load();
+    var button = document.getElementById("logoutBtn");
+    if (!session) {
+      renderAccount();
+      return;
+    }
+    if (button) button.disabled = true;
+    Auth.logout(session.token).then(function () {
+      Auth.clear();
+      showToast(t("auth.loggedOut"));
+    }).catch(function (err) {
+      if (err && err.unreachable) showToast(t("auth.unreachable"));
+      else {
+        Auth.clear();
+        showToast(t("auth.loggedOut"));
+      }
+    }).then(function () {
+      if (button) button.disabled = false;
+      renderAccount();
+    });
+  }
+
+  function bindAuth() {
+    var open = document.getElementById("authOpen");
+    var dialog = document.getElementById("authDialog");
+    if (!open || !dialog) return;
+    open.addEventListener("click", function () { openAuth("login"); });
+    var register = document.getElementById("registerOpen");
+    if (register) register.addEventListener("click", function () { openAuth("register"); });
+    document.getElementById("authClose").addEventListener("click", function () { dialog.close(); });
+    document.getElementById("authSwitch").addEventListener("click", function () {
+      authMode = authMode === "register" ? "login" : "register";
+      var err = document.getElementById("authError");
+      err.hidden = true;
+      err.dataset.code = "";
+      renderAuthDialog();
+    });
+    document.getElementById("authForm").addEventListener("submit", onAuthSubmit);
+    document.getElementById("logoutBtn").addEventListener("click", onLogout);
+    bindBackdrop(dialog);
+    dialog.addEventListener("close", function () {
+      document.getElementById("authPassword").value = "";
+      authPending = false;
+    });
+    window.addEventListener("storage", function (event) {
+      if (Auth && event.key === Auth.STORAGE_KEY) renderAccount();
+    });
+  }
+
   function init() {
     var stored = loadDB().lang;
     lang = stored === "en" ? "en" : "hu";
     bindLang();
     bindInterestForms();
+    bindAuth();
     if (document.body.dataset.page === "app") bindApp();
     applyLanguage();
+    refreshAccount();
     if (document.body.dataset.page !== "app") return;
     checkReminders();
     document.addEventListener("visibilitychange", function () {

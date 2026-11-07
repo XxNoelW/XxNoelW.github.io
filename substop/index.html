@@ -60,6 +60,12 @@
         <button type="button" data-set-lang="hu" aria-pressed="true">HU</button>
         <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
       </div>
+      <div class="account">
+        <button type="button" class="btn btn-ghost btn-sm" id="authOpen" data-i18n="auth.open">Belépés</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="registerOpen" data-i18n="auth.register">Regisztráció</button>
+        <span class="account-email" id="accountEmail" hidden></span>
+        <button type="button" class="btn btn-ghost btn-sm" id="logoutBtn" hidden data-i18n="auth.logout">Kijelentkezés</button>
+      </div>
       <a class="btn btn-primary" href="app.html" data-i18n="nav.app">App</a>
     </div>
   </div>
@@ -76,7 +82,7 @@
       </div>
       <ul class="trust">
         <li data-i18n="trust.1">3 előfizetés ingyen</li>
-        <li data-i18n="trust.2">Adat csak ezen az eszközön</li>
+        <li data-i18n="trust.2">A lista ezen az eszközön marad</li>
         <li data-i18n="trust.3">Figyelmeztetés 1–3 nappal előtte</li>
         <li data-i18n="trust.4">Naptáremlékeztető (.ics)</li>
       </ul>
@@ -109,7 +115,7 @@
   <section class="section wrap" id="how">
     <p class="kicker" data-i18n="how.kicker">Hogyan működik</p>
     <h2 data-i18n="how.title">Három lépés, és nem csúszik el a lemondás</h2>
-    <p class="section-lead" data-i18n="how.lead">Nincs fiók. Amit beírsz, a böngésződben marad.</p>
+    <p class="section-lead" data-i18n="how.lead">A lista a böngésződben marad. Fiókkal be tudsz lépni — az előfizetések ettől még ezen az eszközön tárolódnak.</p>
     <div class="steps">
       <article class="step">
         <p class="step-num">01</p>
@@ -181,7 +187,7 @@
     <div class="faq">
       <details>
         <summary data-i18n="faq.q1">Hol tárolja az adataimat?</summary>
-        <p data-i18n="faq.a1">Csak a böngésződ helyi tárolójában (localStorage), ezen az eszközön. Nincs fiók és nincs szerver. Ha törlöd a böngésző adatait, a lista is törlődik.</p>
+        <p data-i18n="faq.a1">Az előfizetések a böngésződ helyi tárolójában (localStorage) maradnak, ezen az eszközön. A fiók (e-mail és jelszó) a belépéshez a SubStop szerverén van. Ha törlöd a böngésző adatait, a lista is törlődik; a fiók megmarad.</p>
       </details>
       <details>
         <summary data-i18n="faq.q2">Szól akkor is, ha az oldal nincs megnyitva?</summary>
@@ -208,7 +214,7 @@
 </main>
 <footer class="site-footer">
   <div class="wrap">
-    <p data-i18n="footer.blurb">A SubStop egy előfizetés-figyelő. A lista a te böngésződben marad.</p>
+    <p data-i18n="footer.blurb">A SubStop egy előfizetés-figyelő. A lista a böngésződben marad, a fiókkal pedig be tudsz lépni.</p>
     <p class="footer-links"><a href="app.html" data-i18n="hero.cta">Megnyitom az appot</a></p>
     <p data-i18n="footer.rights">© 2026 SubStop</p>
   </div>
@@ -216,9 +222,32 @@
 <noscript>
   <p class="noscript wrap" data-i18n="noscript.landing">A nyelvváltóhoz és az app mentéséhez JavaScript kell. A szöveg enélkül is olvasható.</p>
 </noscript>
+<dialog id="authDialog" aria-labelledby="authTitle">
+  <form id="authForm" class="dialog-body" novalidate autocomplete="on">
+    <div class="dialog-head">
+      <h2 id="authTitle">Belépés</h2>
+      <button type="button" class="icon-btn" id="authClose" data-i18n-aria="form.close" aria-label="Bezárás">×</button>
+    </div>
+    <p id="authError" class="form-error" role="alert" hidden></p>
+    <label class="field" for="authEmail">
+      <span data-i18n="auth.email">E-mail</span>
+      <input id="authEmail" name="email" type="email" maxlength="120" autocomplete="username" required>
+    </label>
+    <label class="field" for="authPassword">
+      <span data-i18n="auth.password">Jelszó</span>
+      <input id="authPassword" name="password" type="password" maxlength="200" autocomplete="current-password" required>
+    </label>
+    <p class="hint" data-i18n="auth.passwordHint">Legalább 8 karakter.</p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-ghost" id="authSwitch">Nincs még fiókod? Regisztráció</button>
+      <button type="submit" class="btn btn-primary" id="authSubmit">Belépés</button>
+    </div>
+  </form>
+</dialog>
 <p id="toast" class="toast" role="status" hidden></p>
 <script src="js/logic.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

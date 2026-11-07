@@ -48,6 +48,12 @@ Then in the new repo: Settings → Pages → Custom domain → `substop.net`, an
 
 After the domain serves the site, update the absolute URLs in `index.html` and `app.html` (`canonical`, `og:url`, `og:image`, `twitter:image`, and the JSON-LD `url` on the home page) from `https://xxnoelw.github.io/substop/` to `https://substop.net/`.
 
+## Accounts
+
+Sign-in is optional. The subscription list still stays in `localStorage` on this device. Register and login talk to the Worker at `https://substop-api.knoel99-morcik.workers.dev` (`POST /api/register`, `POST /api/login`, `POST /api/logout`, `GET /api/me`). The session token is kept in `localStorage` under `substop.auth.v1` and sent as `Authorization: Bearer`.
+
+When this page is opened from `localhost` or `127.0.0.1`, those calls go to `http://127.0.0.1:8787` so you can run the API with Wrangler. Deploy steps for the Worker live in `substop-api/DEPLOY.md` in the parent repository.
+
 ## Local preview
 
 Open `index.html` in a browser, or from this folder:

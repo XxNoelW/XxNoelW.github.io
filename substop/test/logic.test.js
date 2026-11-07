@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const logic = require("../js/logic.js");
 const i18n = require("../js/i18n.js");
+const auth = require("../js/auth.js");
 
 const today = new Date(2026, 10, 7);
 
@@ -119,6 +120,14 @@ test("slug, email, and money format", function () {
   assert.match(logic.formatMoney(4990, "HUF", "hu"), /4[\s\u00a0\u202f]?990/);
   assert.match(logic.formatMoney(4990, "HUF", "hu"), /Ft/);
   assert.match(logic.formatMoney(12.5, "EUR", "en"), /12\.50/);
+});
+
+test("account api base stays on the worker except for local pages", function () {
+  assert.equal(auth.apiBase("xxnoelw.github.io"), "https://substop-api.knoel99-morcik.workers.dev");
+  assert.equal(auth.apiBase("substop.net"), "https://substop-api.knoel99-morcik.workers.dev");
+  assert.equal(auth.apiBase("127.0.0.1"), "http://127.0.0.1:8787");
+  assert.equal(auth.apiBase("localhost"), "http://127.0.0.1:8787");
+  assert.equal(auth.STORAGE_KEY, "substop.auth.v1");
 });
 
 test("locales and page copy keys match", function () {

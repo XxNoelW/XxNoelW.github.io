@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "substop-api",
+  "account_id": "46f626d52e6a1fa511c2cfa40cc2b602",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.01
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "substop-db",
+      // PLACEHOLDER. Not a real database. Replace with the UUID printed by:
+      //   npx wrangler d1 create substop-db
+      // Local `wrangler dev --local` accepts this zero id. Remote deploy and
+      // `migrations apply --remote` need the real id first.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

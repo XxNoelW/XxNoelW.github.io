@@ -1,0 +1,3 @@
+# Copy to .dev.vars for local `wrangler dev` only. .dev.vars is gitignored.
+# Leave AGENTMAIL_API_KEY unset to skip email. Register and login still work.
+# AGENTMAIL_API_KEY=
