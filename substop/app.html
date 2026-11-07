@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SubStop — Előfizetéseid</title>
+<meta name="description" content="SubStop app: előfizetések és próbaidők a következő terhelés szerint, havi költés, és emlékeztető 1–3 nappal a levonás előtt.">
+<meta name="theme-color" content="#f3efe6">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://xxnoelw.github.io/substop/app.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="hu_HU">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:site_name" content="SubStop">
+<meta property="og:title" content="SubStop — Előfizetéseid">
+<meta property="og:description" content="Írd össze az előfizetéseidet. A SubStop kiemeli, ami 1–3 napon belül terhel, és emlékeztet a lemondásra.">
+<meta property="og:url" content="https://xxnoelw.github.io/substop/app.html">
+<meta property="og:image" content="https://xxnoelw.github.io/substop/og.png">
+<meta property="og:image:alt" content="SubStop előfizetés-figyelő">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SubStop — Előfizetéseid">
+<meta name="twitter:description" content="Havi költés, közeli terhelések, böngészős emlékeztető és .ics naptárfájl.">
+<meta name="twitter:image" content="https://xxnoelw.github.io/substop/og.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="app" data-title-key="app.docTitle">
+<a class="skip" href="#main" data-i18n="skip">Ugrás a tartalomhoz</a>
+<header class="site-header">
+  <div class="bar wrap">
+    <a class="brand" href="index.html"><img src="favicon.svg" width="28" height="28" alt=""><span>SubStop</span></a>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" data-i18n-aria="lang.group" aria-label="Nyelv">
+        <button type="button" data-set-lang="hu" aria-pressed="true">HU</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button type="button" id="permBtn" class="btn btn-ghost btn-sm">Emlékeztető</button>
+    </div>
+    <button type="button" id="addBtn" class="btn btn-primary"><span data-add-label>Hozzáadás</span></button>
+  </div>
+</header>
+<div id="banner" class="banner" role="status" hidden></div>
+<main id="main">
+  <div class="wrap">
+    <div id="stats" class="stats"></div>
+    <div class="list-head">
+      <div>
+        <h1 data-i18n="app.title">Előfizetéseid</h1>
+        <p class="muted" data-i18n="app.sorted">A következő terhelés szerint rendezve.</p>
+      </div>
+      <button type="button" id="proLink" class="text-link" data-i18n="app.proLink">Pro · 990 Ft/hó</button>
+    </div>
+    <div id="list" class="list"></div>
+    <div id="empty" class="empty" hidden>
+      <h2 data-i18n="app.emptyTitle">Még nincs a listán semmi</h2>
+      <p data-i18n="app.emptyBody">Adj hozzá egy előfizetést vagy próbaidőt. Ingyenes csomagban 3 fér el.</p>
+      <button type="button" id="emptyAdd" class="btn btn-primary"><span data-add-label>Hozzáadás</span></button>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p data-i18n="footer.blurb">A SubStop egy előfizetés-figyelő. A lista a te böngésződben marad.</p>
+    <p class="footer-links"><a href="index.html#pricing" data-i18n="nav.pricing">Árak</a> · <a href="index.html#faq" data-i18n="nav.faq">GYIK</a></p>
+  </div>
+</footer>
+<dialog id="formDialog" aria-labelledby="formTitle">
+  <form id="subForm" class="dialog-body" novalidate autocomplete="off">
+    <div class="dialog-head">
+      <h2 id="formTitle">Új előfizetés</h2>
+      <button type="button" class="icon-btn" id="formClose" data-i18n-aria="form.close" aria-label="Bezárás">×</button>
+    </div>
+    <p id="formError" class="form-error" role="alert" hidden></p>
+    <label class="field" for="name">
+      <span data-i18n="form.name">Név</span>
+      <input id="name" name="name" type="text" maxlength="80" required autocomplete="off">
+    </label>
+    <label class="field" for="price">
+      <span data-i18n="form.price">Ár</span>
+      <input id="price" name="price" type="text" inputmode="decimal" required placeholder="4990" autocomplete="off">
+    </label>
+    <p class="hint" data-i18n="form.priceHint">Például 4990 vagy 12,99. Próbaidőnél az az összeg, amit a végén vonnak — a havi költésbe nem számít bele.</p>
+    <label class="field" for="currency">
+      <span data-i18n="form.currency">Pénznem</span>
+      <select id="currency" name="currency">
+        <option value="HUF" selected data-i18n="cur.HUF">HUF — forint</option>
+        <option value="EUR" data-i18n="cur.EUR">EUR — euró</option>
+        <option value="USD" data-i18n="cur.USD">USD — dollár</option>
+        <option value="GBP" data-i18n="cur.GBP">GBP — font</option>
+      </select>
+    </label>
+    <fieldset class="field">
+      <legend data-i18n="form.cycle">Számlázás</legend>
+      <div class="seg">
+        <label><input type="radio" name="cycle" value="monthly" checked> <span data-i18n="cycle.monthly">Havi</span></label>
+        <label><input type="radio" name="cycle" value="yearly"> <span data-i18n="cycle.yearly">Éves</span></label>
+        <label><input type="radio" name="cycle" value="trial"> <span data-i18n="cycle.trial">Próba</span></label>
+      </div>
+    </fieldset>
+    <label class="field" for="nextCharge">
+      <span id="dateLabel" data-i18n="form.date">Következő terhelés</span>
+      <input id="nextCharge" name="nextCharge" type="date" required>
+    </label>
+    <div class="date-presets">
+      <button type="button" data-date-offset="1" data-i18n="form.tomorrow">Holnap</button>
+      <button type="button" data-date-offset="3" data-i18n="form.in3">3 nap múlva</button>
+      <button type="button" data-date-offset="30" data-i18n="form.in30">30 nap múlva</button>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-ghost" id="formCancel" data-i18n="form.cancel">Mégse</button>
+      <button type="submit" class="btn btn-primary" data-i18n="form.save">Mentés</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="upsellDialog" aria-labelledby="upsellTitle">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2 id="upsellTitle" data-i18n="upsell.title">Az ingyenes csomag betelt</h2>
+      <button type="button" class="icon-btn" id="upsellClose" data-i18n-aria="form.close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="upsell-plan">Pro · 990 Ft <span data-i18n="pro.per">/ hó</span></p>
+    <p class="upsell-body" data-i18n="upsell.body">3 előfizetésnél többet az ingyenes csomag nem tárol. A Pro havi 990 Ft lenne, korlátlan listával — a fizetés még nincs élesítve.</p>
+    <form class="js-interest interest" novalidate>
+      <div data-fields>
+        <div class="field">
+          <label for="upsellEmail" data-i18n="pro.emailLabel">E-mail, ha érdekel</label>
+          <div class="interest-row">
+            <input id="upsellEmail" type="email" name="email" maxlength="120" autocomplete="email" required placeholder="email@pelda.hu" data-i18n-placeholder="pro.placeholder">
+            <button type="submit" class="btn btn-primary"><span data-i18n="pro.cta">Érdekel a Pro</span></button>
+          </div>
+        </div>
+        <p class="hint" data-i18n="pro.note">Az e-mail csak ezen az eszközön mentődik. Nem küldjük el sehova, amíg nincs igazi fizetés.</p>
+        <p class="form-error" data-error hidden></p>
+      </div>
+      <p class="thanks" data-thanks hidden></p>
+      <button type="button" class="btn btn-ghost btn-sm" data-reset hidden data-i18n="pro.change">Másik e-mail</button>
+    </form>
+    <p class="footer-links"><a href="index.html#pricing" data-i18n="upsell.pricing">Árak a főoldalon</a></p>
+  </div>
+</dialog>
+
+<dialog id="deleteDialog" aria-labelledby="deleteTitle">
+  <div class="dialog-body">
+    <h2 id="deleteTitle" data-i18n="delete.title">Törlöd ezt az előfizetést?</h2>
+    <p id="deleteBody" class="upsell-body"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-ghost" id="deleteCancel" data-i18n="form.cancel">Mégse</button>
+      <button type="button" class="btn btn-danger-solid" id="deleteConfirm" data-i18n="delete.confirm">Törlés</button>
+    </div>
+  </div>
+</dialog>
+
+<noscript>
+  <p class="noscript wrap" data-i18n="noscript.app">A SubStop appnak JavaScript kell. Engedélyezd, majd töltsd újra az oldalt.</p>
+</noscript>
+<p id="toast" class="toast" role="status" hidden></p>
+<script src="js/logic.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
